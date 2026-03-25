@@ -50,7 +50,14 @@ It is built to showcase **full-stack development skills**, including API integra
 
 ## 📸 Screenshots
 
+### 🏠 Home Page
+![Home](./screenshots/home.png)
 
+### 📊 Dashboard
+![Dashboard](./screenshots/dashboard.png)
+
+### 💳 Payment Page
+![Payment](./screenshots/payment.png)
 
 ---
 
