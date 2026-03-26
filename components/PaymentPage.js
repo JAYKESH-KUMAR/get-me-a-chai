@@ -6,22 +6,20 @@ import { useSearchParams } from 'next/navigation'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
-import { useRouter } from 'next/navigation'
 
 const PaymentPage = ({ username }) => {
 
-    const [paymentform, setPaymentform] = useState({name: "", message: "", amount: ""})
+    const [paymentform, setPaymentform] = useState({ name: "", message: "", amount: "" })
     const [currentUser, setcurrentUser] = useState(null)   
     const [payments, setPayments] = useState([])
     const searchParams = useSearchParams()
-    const router = useRouter()
 
     useEffect(() => {
         getData()
     }, [])
 
     useEffect(() => {
-        if(searchParams.get("paymentdone") == "true"){
+        if (searchParams.get("paymentdone") == "true") {
             toast('Thanks for your donation!', {
                 position: "top-right",
                 autoClose: 5000,
@@ -32,14 +30,15 @@ const PaymentPage = ({ username }) => {
     }, [searchParams])
 
     const handleChange = (e) => {
-        setPaymentform({ ...paymentform, [e.target.name]: e.target.value }) 
+        setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
     }
 
     const getData = async () => {
         let u = await fetchuser(username)
         setcurrentUser(u)
+
         let dbpayments = await fetchpayments(username)
-        setPayments(dbpayments) 
+        setPayments(dbpayments || [])   
     }
 
     const pay = async (amount) => {
@@ -47,7 +46,7 @@ const PaymentPage = ({ username }) => {
         let orderId = a.id
 
         var options = {
-            key: currentUser?.razorpayid,   
+            key: currentUser?.razorpayid,
             amount: amount,
             currency: "INR",
             name: "Get Me A Chai",
@@ -60,7 +59,7 @@ const PaymentPage = ({ username }) => {
         rzp1.open();
     }
 
-    
+    // ✅ LOADING FIX (CRASH STOP)
     if (!currentUser) {
         return (
             <div className="text-white text-center mt-10">
@@ -74,13 +73,16 @@ const PaymentPage = ({ username }) => {
             <ToastContainer theme="light" />
             <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
 
+            {/* COVER */}
             <div className='cover w-full bg-red-50 relative'>
                 <img className='object-cover w-full h-48 md:h-[350px]' src={currentUser?.coverpic || ""} alt="" />
+
                 <div className='absolute -bottom-20 right-[33%] md:right-[46%] border-white overflow-hidden border-2 rounded-full size-36'>
                     <img className='rounded-full object-cover size-36' src={currentUser?.profilepic || ""} alt="" />
                 </div>
             </div>
 
+            {/* INFO */}
             <div className="info flex justify-center items-center my-24 mb-32 flex-col gap-2 text-white">
 
                 <div className='font-bold text-lg'>@{username}</div>
@@ -89,27 +91,37 @@ const PaymentPage = ({ username }) => {
                     Lets help {username} get a chai!
                 </div>
 
+                {/* ✅ SAFE REDUCE FIX */}
                 <div className='text-slate-400'>
-                  {payments.length} Payments . ₹{payments.reduce((a, b) => a + b.amount, 0)} raised
+                    {payments.length} Payments . ₹{payments.reduce((a, b) => a + (b?.amount || 0), 0)} raised
                 </div>
 
                 <div className="payment flex gap-3 w-[80%] mt-11 flex-col md:flex-row">
 
+                    {/* SUPPORTERS */}
                     <div className="supporters w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
                         <h2 className='text-2xl font-bold my-5'> Top 10 Supporters</h2>
+
                         <ul className='mx-5 text-lg'>
-                            {payments.length == 0 && <li>No payments yet</li>}
+                            {payments.length === 0 && <li>No payments yet</li>}
+
+                            {/* ✅ SAFE MAP FIX */}
                             {payments.map((p, i) => {
-                                return <li key={i} className='my-4 flex gap-2 items-center'>
-                                    <img width={33} src="avatar.gif" alt="" />
-                                    <span>
-                                        {p.name} donated <span className='font-bold'>₹{p.amount}</span> with message "{p.message}"
-                                    </span>
-                                </li>
+                                return (
+                                    <li key={i} className='my-4 flex gap-2 items-center'>
+                                        <img width={33} src="avatar.gif" alt="" />
+                                        <span>
+                                            {p?.name || "Someone"} donated 
+                                            <span className='font-bold'> ₹{p?.amount || 0}</span> 
+                                            with message "{p?.message || ""}"
+                                        </span>
+                                    </li>
+                                )
                             })}
                         </ul>
                     </div>
 
+                    {/* PAYMENT FORM */}
                     <div className="makePayment w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
 
                         <h2 className='text-2xl font-bold my-5'>Make a Payment</h2>
@@ -128,9 +140,10 @@ const PaymentPage = ({ username }) => {
                                 className='w-full p-3 rounded-lg bg-slate-800 text-white'
                                 placeholder='Enter Amount' />
 
-                            <button onClick={() => pay(Number.parseInt(paymentform.amount) * 100)}
+                            <button
+                                onClick={() => pay(Number.parseInt(paymentform.amount || 0) * 100)}
                                 className="text-white bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg px-5 py-2.5"
-                                disabled={paymentform.name?.length < 3 || paymentform.message?.length < 4 || paymentform.amount?.length<1}>
+                                disabled={paymentform.name?.length < 3 || paymentform.message?.length < 4 || paymentform.amount?.length < 1}>
                                 Pay
                             </button>
 
