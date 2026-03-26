@@ -29,7 +29,11 @@ export default async function Page(props) {
     );
   }
 
-  return <PaymentPage username={username} />;
+  return (
+  <div className="text-white text-center mt-10">
+    Username page working: {username}
+  </div>
+);
 }
 
 export async function generateMetadata(props) {
