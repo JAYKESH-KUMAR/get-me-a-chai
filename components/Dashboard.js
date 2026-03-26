@@ -18,13 +18,14 @@ const Dashboard = () => {
         if (status === "unauthenticated") {
             router.push('/login')
         }
-       else if (session?.user?.email) {
+       else if (status === "authenticated") {
             getData()
         }
 
     }, [status])
 
     const getData = async () => {
+        if (!session?.user?.email) return; 
         let u = await fetchuser(session.user.email)
         setform(u)
     }
@@ -34,7 +35,8 @@ const Dashboard = () => {
     }
 
     const handleSubmit = async (e) => {
-        let a = await updateProfile(e, session.user.email)
+        e.preventDefault();
+        await updateProfile(e, session.user.email)
         toast('Profile Updated', {
             position: "top-right",
             autoClose: 5000,
@@ -49,12 +51,13 @@ const Dashboard = () => {
     }
 
 
-    if (status === "loading") {
+if (!session) {
         return (
             <div className="text-center text-white mt-10">
                 Loading Dashboard...
             </div>
         )
+        
     }
 
     return (
