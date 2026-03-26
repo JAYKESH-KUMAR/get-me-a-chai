@@ -10,13 +10,15 @@ import { Bounce } from 'react-toastify';
 const PaymentPage = ({ username }) => {
 
     const [paymentform, setPaymentform] = useState({ name: "", message: "", amount: "" })
-    const [currentUser, setcurrentUser] = useState(null)   
+    const [currentUser, setcurrentUser] = useState(null)
     const [payments, setPayments] = useState([])
     const searchParams = useSearchParams()
 
     useEffect(() => {
-        getData()
-    }, [])
+        if (username) {
+            getData()
+        }
+    }, [username])
 
     useEffect(() => {
         if (searchParams.get("paymentdone") == "true") {
@@ -34,11 +36,17 @@ const PaymentPage = ({ username }) => {
     }
 
     const getData = async () => {
-        let u = await fetchuser(username)
-        setcurrentUser(u)
+        if (!username) return;
+        try {
+            let u = await fetchuser(username)
+            setcurrentUser(u)
 
-        let dbpayments = await fetchpayments(username)
-        setPayments(dbpayments || [])   
+            let dbpayments = await fetchpayments(username)
+            setPayments(dbpayments || [])
+        } catch (error) {
+            console.error("Error fetching data:", error)
+        }
+        
     }
 
     const pay = async (amount) => {
@@ -111,8 +119,8 @@ const PaymentPage = ({ username }) => {
                                     <li key={i} className='my-4 flex gap-2 items-center'>
                                         <img width={33} src="avatar.gif" alt="" />
                                         <span>
-                                            {p?.name || "Someone"} donated 
-                                            <span className='font-bold'> ₹{p?.amount || 0}</span> 
+                                            {p?.name || "Someone"} donated
+                                            <span className='font-bold'> ₹{p?.amount || 0}</span>
                                             with message "{p?.message || ""}"
                                         </span>
                                     </li>
