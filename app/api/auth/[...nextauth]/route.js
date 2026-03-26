@@ -10,46 +10,52 @@ const handler = NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
-   trustHost: true,
+
+  trustHost: true, 
 
   callbacks: {
     async signIn({ user, account }) {
-      console.log("SIGNIN CALLED ");
+      try {
+        if (account.provider === "github") {
 
-      if (account.provider === "github") {
+          await connectDb(); 
 
-        const conn = await connectDb(); 
-        if (!conn) return false;
+          if (!user.email) return false;
 
-        if (!user.email) return false;
+          const currentUser = await User.findOne({ email: user.email });
 
-        const currentUser = await User.findOne({ email: user.email }).lean(); 
+          if (!currentUser) {
+            await User.create({
+              email: user.email,
+              username: user.email.split("@")[0],
+            });
+          }
 
-        if (!currentUser) {
-          await User.create({
-            email: user.email,
-            username: user.email.split("@")[0],
-          });
+          return true;
         }
 
-        return true;
+        return false;
+      } catch (error) {
+        console.error("SignIn Error:", error);
+        return false;
       }
-
-      return false;
     },
 
     async session({ session }) {
+      try {
+        await connectDb(); 
 
-      const conn = await connectDb(); 
-      if (!conn) return session;
+        const dbUser = await User.findOne({ email: session.user.email });
 
-      const dbUser = await User.findOne({ email: session.user.email }).lean();
+        if (dbUser) {
+          session.user.name = dbUser.username;
+        }
 
-      if (dbUser) {
-        session.user.name = dbUser.username;
+        return session;
+      } catch (error) {
+        console.error("Session Error:", error);
+        return session;
       }
-
-      return session;
     },
   },
 });

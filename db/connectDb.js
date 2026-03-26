@@ -17,11 +17,16 @@ const connectDb = async () => {
     mongoose.set("bufferCommands", false);
 
     cached.promise = mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 60000,
+      dbName: "test",
+      serverSelectionTimeoutMS: 30000,
     }).then((mongoose) => {
       console.log("MongoDB Connected");
       return mongoose;
+    }).catch((err) => {
+      console.error("MongoDB Error:", err);
+      throw err;
     });
+
   }
 
   cached.conn = await cached.promise;
