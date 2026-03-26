@@ -17,6 +17,9 @@ const handler = NextAuth({
   ],
 
   trustHost: true,
+  pages: {
+    error: "/login", 
+  },
 
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -45,7 +48,7 @@ const handler = NextAuth({
         return true; 
       } catch (error) {
         console.error("SignIn Error:", error);
-        return true; 
+        return "/login"; 
       }
     },
 
