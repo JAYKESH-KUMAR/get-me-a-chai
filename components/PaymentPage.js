@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 const PaymentPage = ({ username }) => {
 
     const [paymentform, setPaymentform] = useState({name: "", message: "", amount: ""})
-    const [currentUser, setcurrentUser] = useState({})
+    const [currentUser, setcurrentUser] = useState(null)   
     const [payments, setPayments] = useState([])
     const searchParams = useSearchParams()
     const router = useRouter()
@@ -29,11 +29,10 @@ const PaymentPage = ({ username }) => {
                 transition: Bounce,
             });
         }
-        // ❌ redirect हटाया (यही bug था)
     }, [searchParams])
 
     const handleChange = (e) => {
-        setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
+        setPaymentform({ ...paymentform, [e.target.name]: e.target.value }) 
     }
 
     const getData = async () => {
@@ -48,29 +47,26 @@ const PaymentPage = ({ username }) => {
         let orderId = a.id
 
         var options = {
-            "key": currentUser.razorpayid,
-            "amount": amount,
-            "currency": "INR",
-            "name": "Get Me A Chai",
-            "description": "Test Transaction",
-            "image": "https://example.com/your_logo",
-            "order_id": orderId,
-            "callback_url": `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
-            "prefill": {
-                "name": "Jaykesh kumar",
-                "email": "Jaykesh.kumar@example.com",
-                "contact": "9000090000"
-            },
-            "notes": {
-                "address": "Razorpay Corporate Office"
-            },
-            "theme": {
-                "color": "#3399cc"
-            }
+            key: currentUser?.razorpayid,   
+            amount: amount,
+            currency: "INR",
+            name: "Get Me A Chai",
+            description: "Test Transaction",
+            order_id: orderId,
+            callback_url: `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
         }
 
         var rzp1 = new Razorpay(options);
         rzp1.open();
+    }
+
+    
+    if (!currentUser) {
+        return (
+            <div className="text-white text-center mt-10">
+                Loading Payment Page...
+            </div>
+        )
     }
 
     return (
@@ -79,9 +75,9 @@ const PaymentPage = ({ username }) => {
             <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
 
             <div className='cover w-full bg-red-50 relative'>
-                <img className='object-cover w-full h-48 md:h-[350px]' src={currentUser.coverpic} alt="" />
+                <img className='object-cover w-full h-48 md:h-[350px]' src={currentUser?.coverpic || ""} alt="" />
                 <div className='absolute -bottom-20 right-[33%] md:right-[46%] border-white overflow-hidden border-2 rounded-full size-36'>
-                    <img className='rounded-full object-cover size-36' src={currentUser.profilepic} alt="" />
+                    <img className='rounded-full object-cover size-36' src={currentUser?.profilepic || ""} alt="" />
                 </div>
             </div>
 
