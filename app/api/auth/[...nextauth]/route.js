@@ -11,39 +11,44 @@ const handler = NextAuth({
     }),
   ],
 
-  trustHost: true, 
+  trustHost: true,
 
   callbacks: {
+
     async signIn({ user, account }) {
       try {
         if (account.provider === "github") {
 
-          await connectDb(); 
+          await connectDb();
 
-          if (!user.email) return false;
+          
+          const email = user.email || `${user.name || "user"}@gmail.com`;
 
-          const currentUser = await User.findOne({ email: user.email });
+          let currentUser = await User.findOne({ email });
 
           if (!currentUser) {
             await User.create({
-              email: user.email,
-              username: user.email.split("@")[0],
+              email,
+              username: email.split("@")[0],
             });
           }
 
-          return true;
+          return true; 
         }
 
-        return false;
+        return true;
       } catch (error) {
         console.error("SignIn Error:", error);
-        return false;
+        return true; 
       }
     },
 
     async session({ session }) {
       try {
-        await connectDb(); 
+        await connectDb();
+
+        
+        if (!session?.user?.email) return session;
 
         const dbUser = await User.findOne({ email: session.user.email });
 
@@ -57,6 +62,7 @@ const handler = NextAuth({
         return session;
       }
     },
+
   },
 });
 
