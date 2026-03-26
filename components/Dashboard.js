@@ -19,14 +19,14 @@ const Dashboard = () => {
         if (status === "unauthenticated") {
             router.push('/login')
         }
-       else if (status === "authenticated") {
+        else if (status === "authenticated" && !session?.user?.email) {
             getData()
         }
 
-    }, [status])
+    }, [status, session])
 
     const getData = async () => {
-        if (!session?.user?.email) return; 
+        if (!session?.user?.email) return;
         let u = await fetchuser(session?.user?.email)
         setform(u)
     }
@@ -51,15 +51,14 @@ const Dashboard = () => {
         });
     }
 
-
-if (!session) {
+    if (status === "loading") {
         return (
             <div className="text-center text-white mt-10">
                 Loading Dashboard...
             </div>
         )
-        
     }
+
 
     return (
         <>
