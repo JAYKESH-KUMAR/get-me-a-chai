@@ -36,17 +36,23 @@ const PaymentPage = ({ username }) => {
     }
 
     const getData = async () => {
-        if (!username) return;
         try {
+            if (!username) return;
+
             let u = await fetchuser(username)
+
+            if (!u) {
+                setcurrentUser(null)
+                return
+            }
+
             setcurrentUser(u)
 
             let dbpayments = await fetchpayments(username)
             setPayments(dbpayments || [])
-        } catch (error) {
-            console.error("Error fetching data:", error)
+        } catch (err) {
+            console.log("PaymentPage error:", err)
         }
-        
     }
 
     const pay = async (amount) => {
@@ -67,11 +73,12 @@ const PaymentPage = ({ username }) => {
         rzp1.open();
     }
 
-    // ✅ LOADING FIX (CRASH STOP)
-    if (!currentUser) {
+    // LOADING FIX (CRASH STOP)
+    if (!currentUser)
+         {
         return (
             <div className="text-white text-center mt-10">
-                Loading Payment Page...
+                User not found or loading...
             </div>
         )
     }
@@ -99,7 +106,7 @@ const PaymentPage = ({ username }) => {
                     Lets help {username} get a chai!
                 </div>
 
-                {/* ✅ SAFE REDUCE FIX */}
+                {/* SAFE REDUCE FIX */}
                 <div className='text-slate-400'>
                     {payments.length} Payments . ₹{payments.reduce((a, b) => a + (b?.amount || 0), 0)} raised
                 </div>
@@ -113,7 +120,7 @@ const PaymentPage = ({ username }) => {
                         <ul className='mx-5 text-lg'>
                             {payments.length === 0 && <li>No payments yet</li>}
 
-                            {/* ✅ SAFE MAP FIX */}
+                            {/* SAFE MAP FIX */}
                             {payments.map((p, i) => {
                                 return (
                                     <li key={i} className='my-4 flex gap-2 items-center'>

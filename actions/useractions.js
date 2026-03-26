@@ -9,7 +9,7 @@ import User from "@/models/User"
 export const initiate = async (amount, to_username, paymentform) => {
     await connectDb()
 
-    let user = await User.findOne({ username: to_username })
+    let user = await User.findOne({ username: to_username.toLowerCase() })
 
     if (!user) {
         throw new Error("User not found")   
