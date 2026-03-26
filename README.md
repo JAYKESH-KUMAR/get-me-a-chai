@@ -102,3 +102,4 @@ Give it a ⭐ on GitHub
  Share it with others
 
 💡 This project is built for learning, portfolio, and demonstrating real-world full-stack development skills.
+<!-- updated -->
