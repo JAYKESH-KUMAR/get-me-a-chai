@@ -17,28 +17,22 @@ const handler = NextAuth({
   ],
 
   trustHost: true,
-  pages: {
-    error: "/login",
+
+  session: {
+    strategy: "jwt",
   },
 
+  secret: process.env.NEXTAUTH_SECRET,
+
   callbacks: {
-    async session({ session, token }) {
-      if (session?.user) {
-        session.user.id = token.sub
-      }
-      return session
-    },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, profile }) {
       try {
-
         await connectDb();
-
 
         const email =
           user.email ||
           profile?.email ||
           `${profile?.login || "user"}@github.com`;
-
 
         await User.updateOne(
           { email },
@@ -54,14 +48,13 @@ const handler = NextAuth({
         return true;
       } catch (error) {
         console.error("SignIn Error:", error);
-        return "/login";
+        return true;
       }
     },
 
     async session({ session }) {
       try {
         await connectDb();
-
 
         if (!session?.user?.email) return session;
 
