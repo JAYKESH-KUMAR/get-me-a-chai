@@ -1,24 +1,32 @@
 import PaymentPage from "@/components/PaymentPage";
-import { notFound } from "next/navigation";
 import connectDb from "@/db/connectDb";
 import User from "@/models/User";
 
 export default async function Page(props) {
 
-  const params = await props.params;   
+  const params = props.params;   
   const username = params?.username;
-  if (!username) {
-    return <div>Loading...</div>;
-  }   
 
+  if (!username) {
+    return (
+      <div className="text-white text-center mt-10">
+        Invalid URL
+      </div>
+    );
+  }
 
   await connectDb();
-  
 
-  const user = await User.findOne({ username });
+  const user = await User.findOne({
+    username: username.toLowerCase(),
+  });
 
   if (!user) {
-    notFound();
+    return (
+      <div className="text-white text-center mt-10">
+        User Not Found
+      </div>
+    );
   }
 
   return <PaymentPage username={username} />;
@@ -26,7 +34,7 @@ export default async function Page(props) {
 
 export async function generateMetadata(props) {
 
-  const params = props.params;   
+  const params = props.params;
   const username = params?.username;
 
   return {
