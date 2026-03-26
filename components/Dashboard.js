@@ -14,21 +14,26 @@ const Dashboard = () => {
     const [form, setform] = useState({})
 
     useEffect(() => {
-        if (status === "loading") return;
-
         if (status === "unauthenticated") {
             router.push('/login')
         }
-        else if (status === "authenticated" && session?.user?.email) {
+    }, [status])
+
+    useEffect(() => {
+        if (session?.user?.email) {
             getData()
         }
-
-    }, [status, session])
+    }, [session])
 
     const getData = async () => {
-        if (!session?.user?.email) return;
-        let u = await fetchuser(session?.user?.email)
-        setform(u)
+        try {
+            if (!session?.user?.email) return;
+
+            let u = await fetchuser(session.user.email)
+            setform(u || {})
+        } catch (err) {
+            console.log("Error fetching user:", err)
+        }
     }
 
     const handleChange = (e) => {
