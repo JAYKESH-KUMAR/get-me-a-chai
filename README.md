@@ -51,15 +51,13 @@ It is built to showcase **full-stack development skills**, including API integra
 ## 📸 Screenshots
 
 ### 🏠 Home Page
-![Home](./screenshots/home.png)
+![Home](./Screenshots/Home.png)
 
 ### 📊 Dashboard
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./Screenshots/Dashboard.png)
 
 ### 💳 Payment Page
-![Payment](./screenshots/payment.png)
-
----
+![Payment](./Screenshots/Payment.png)
 
 ## ⚙️ Local Setup Instructions
 
