@@ -9,31 +9,37 @@ const handler = NextAuth({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
       authorization: {
-      params: {
-        scope: "read:user user:email",
+        params: {
+          scope: "read:user user:email",
+        },
       },
-    },
     }),
   ],
 
   trustHost: true,
   pages: {
-    error: "/login", 
+    error: "/login",
   },
 
   callbacks: {
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.id = token.sub
+      }
+      return session
+    },
     async signIn({ user, account, profile }) {
       try {
-      
+
         await connectDb();
 
-        
+
         const email =
           user.email ||
           profile?.email ||
           `${profile?.login || "user"}@github.com`;
 
-        
+
         await User.updateOne(
           { email },
           {
@@ -45,10 +51,10 @@ const handler = NextAuth({
           { upsert: true }
         );
 
-        return true; 
+        return true;
       } catch (error) {
         console.error("SignIn Error:", error);
-        return "/login"; 
+        return "/login";
       }
     },
 
@@ -56,7 +62,7 @@ const handler = NextAuth({
       try {
         await connectDb();
 
-        
+
         if (!session?.user?.email) return session;
 
         const dbUser = await User.findOne({
