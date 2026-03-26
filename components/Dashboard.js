@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useEffect, useState } from 'react'
 import { useSession } from "next-auth/react"
@@ -26,7 +27,7 @@ const Dashboard = () => {
 
     const getData = async () => {
         if (!session?.user?.email) return; 
-        let u = await fetchuser(session.user.email)
+        let u = await fetchuser(session?.user?.email)
         setform(u)
     }
 
@@ -36,7 +37,7 @@ const Dashboard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await updateProfile(e, session.user.email)
+        await updateProfile(e, session?.user?.email)
         toast('Profile Updated', {
             position: "top-right",
             autoClose: 5000,
