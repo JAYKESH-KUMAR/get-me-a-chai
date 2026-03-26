@@ -62,8 +62,10 @@ const handler = NextAuth({
           email: session?.user?.email,
         });
 
-        if (dbUser) {
+        if (dbUser && dbUser.username) {
           session.user.name = dbUser.username;
+        } else{
+          session.user.name = session.user.name || "User"
         }
 
         return session;
