@@ -10,6 +10,7 @@ const handler = NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
+   trustHost: true,
 
   callbacks: {
     async signIn({ user, account }) {
@@ -22,7 +23,7 @@ const handler = NextAuth({
 
         if (!user.email) return false;
 
-        const currentUser = await User.findOne({ email: user.email }).lean(); // 🔥 lean add
+        const currentUser = await User.findOne({ email: user.email }).lean(); 
 
         if (!currentUser) {
           await User.create({
