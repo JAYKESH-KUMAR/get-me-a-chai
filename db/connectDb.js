@@ -1,8 +1,6 @@
-
 import mongoose from "mongoose";
 
-
-const MONGO_URI = process.env.MONGO_URI || "mongodb://mongo:TglunlsKygNazmfqeEhjmPUHZQYHWxfb@centerbeam.proxy.rlwy.net:11753";
+const MONGO_URI = process.env.MONGO_URI;
 
 let cached = global.mongoose;
 
@@ -16,17 +14,19 @@ const connectDb = async () => {
   if (!cached.promise) {
     mongoose.set("bufferCommands", false);
 
-    cached.promise = mongoose.connect(MONGO_URI, {
-      dbName: "test",
-      serverSelectionTimeoutMS: 30000,
-    }).then((mongoose) => {
-      console.log("MongoDB Connected");
-      return mongoose;
-    }).catch((err) => {
-      console.error("MongoDB Error:", err);
-      throw err;
-    });
-
+    cached.promise = mongoose
+      .connect(MONGO_URI, {
+        dbName: "test",
+        serverSelectionTimeoutMS: 30000,
+      })
+      .then((mongoose) => {
+        console.log("MongoDB Connected");
+        return mongoose;
+      })
+      .catch((err) => {
+        console.error("MongoDB Error:", err);
+        throw err;
+      });
   }
 
   cached.conn = await cached.promise;

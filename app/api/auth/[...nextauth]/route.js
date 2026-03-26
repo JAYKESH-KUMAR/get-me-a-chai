@@ -14,29 +14,30 @@ const handler = NextAuth({
   trustHost: true,
 
   callbacks: {
-
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       try {
-        if (account.provider === "github") {
+      
+        await connectDb();
 
-          await connectDb();
+        
+        const email =
+          user.email ||
+          profile?.email ||
+          `${profile?.login || "user"}@github.com`;
 
-          
-          const email = user.email || `${user.name || "user"}@gmail.com`;
-
-          let currentUser = await User.findOne({ email });
-
-          if (!currentUser) {
-            await User.create({
+        
+        await User.updateOne(
+          { email },
+          {
+            $setOnInsert: {
               email,
               username: email.split("@")[0],
-            });
-          }
+            },
+          },
+          { upsert: true }
+        );
 
-          return true; 
-        }
-
-        return true;
+        return true; 
       } catch (error) {
         console.error("SignIn Error:", error);
         return true; 
@@ -50,7 +51,9 @@ const handler = NextAuth({
         
         if (!session?.user?.email) return session;
 
-        const dbUser = await User.findOne({ email: session.user.email });
+        const dbUser = await User.findOne({
+          email: session.user.email,
+        });
 
         if (dbUser) {
           session.user.name = dbUser.username;
@@ -62,7 +65,6 @@ const handler = NextAuth({
         return session;
       }
     },
-
   },
 });
 
