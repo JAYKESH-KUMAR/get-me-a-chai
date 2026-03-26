@@ -59,7 +59,7 @@ const handler = NextAuth({
         if (!session?.user?.email) return session;
 
         const dbUser = await User.findOne({
-          email: session.user.email,
+          email: session?.user?.email,
         });
 
         if (dbUser) {
