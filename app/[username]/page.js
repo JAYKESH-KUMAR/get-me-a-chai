@@ -6,9 +6,14 @@ import User from "@/models/User";
 export default async function Page(props) {
 
   const params = await props.params;   
-  const username = params.username;    
+  const username = params?.username;
+  if (!username) {
+    return <div>Loading...</div>;
+  }   
+
 
   await connectDb();
+  
 
   const user = await User.findOne({ username });
 
@@ -21,10 +26,10 @@ export default async function Page(props) {
 
 export async function generateMetadata(props) {
 
-  const params = await props.params;   
-  const username = params.username;
+  const params = props.params;   
+  const username = params?.username;
 
   return {
-    title: `Support ${username} - Get Me A Chai`,
+    title: `Support ${username || "User"} - Get Me A Chai`,
   };
 }
