@@ -80,7 +80,7 @@ if (!session) {
                     Welcome to your Dashboard
                 </h1>
 
-                <form className="max-w-2xl mx-auto" action={handleSubmit}>
+                <form className="max-w-2xl mx-auto" onSubmit={handleSubmit}>
 
                     <div className='my-2'>
                         <label className="block mb-2 text-sm font-medium text-white">Name</label>
