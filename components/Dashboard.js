@@ -42,7 +42,7 @@ const Dashboard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await updateProfile(form, session?.user?.email)
+        await updateProfile(form, session?.user?.name)
         toast('Profile Updated', {
             position: "top-right",
             autoClose: 5000,
