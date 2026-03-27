@@ -113,7 +113,7 @@ export const updateProfile = async (data, oldusername) => {
 
         const updateData = {
             name: ndata.name || "",
-            username: ndata.username?.toLowerCase() || "",
+            username: ndata.username?.toLowerCase()?.trim() || "",
             profilepic: ndata.profilepic || "",
             coverpic: ndata.coverpic || "",
             razorpayid: ndata.razorpayid || "",
