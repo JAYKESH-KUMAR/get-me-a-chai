@@ -14,12 +14,14 @@ const PaymentPage = ({ username }) => {
     const [payments, setPayments] = useState([])
     const searchParams = useSearchParams()
 
+    //  LOAD DATA
     useEffect(() => {
         if (username) {
             getData()
         }
     }, [username])
 
+    // PAYMENT SUCCESS TOAST
     useEffect(() => {
         if (searchParams.get("paymentdone") == "true") {
             toast('Thanks for your donation!', {
@@ -35,6 +37,7 @@ const PaymentPage = ({ username }) => {
         setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
     }
 
+    // SAFE DATA FETCH
     const getData = async () => {
         try {
             if (!username) return;
@@ -50,39 +53,43 @@ const PaymentPage = ({ username }) => {
 
             let dbpayments = await fetchpayments(username)
             setPayments(dbpayments || [])
+
         } catch (err) {
             console.log("PaymentPage error:", err)
         }
     }
 
+    //  PAYMENT FUNCTION SAFE
     const pay = async (amount) => {
-         try {
+        try {
             if (!currentUser) return;
-        let a = await initiate(amount, username, paymentform)
-        let orderId = a.id
 
-        var options = {
-            key: currentUser?.razorpayid,
-            amount: amount,
-            currency: "INR",
-            name: "Get Me A Chai",
-            description: "Test Transaction",
-            order_id: orderId,
-            callback_url: `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
-        }
+            let a = await initiate(amount, username, paymentform)
+            let orderId = a.id
 
-        var rzp1 = new Razorpay(options);
-        rzp1.open();
-    }catch (err) {
+            var options = {
+                key: currentUser?.razorpayid || "",
+                amount: amount,
+                currency: "INR",
+                name: "Get Me A Chai",
+                description: "Support Creator",
+                order_id: orderId,
+                callback_url: `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
+            }
+
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+
+        } catch (err) {
             console.log("Payment error:", err)
         }
+    }
 
-    // LOADING FIX (CRASH STOP)
-    if (!currentUser)
-         {
+    //  CRASH STOP
+    if (!currentUser) {
         return (
             <div className="text-white text-center mt-10">
-              User not found or loading...
+                User not found or loading...
             </div>
         )
     }
@@ -93,11 +100,19 @@ const PaymentPage = ({ username }) => {
             <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
 
             {/* COVER */}
-            <div className='cover w-full bg-red-50 relative'>
-                <img className='object-cover w-full h-48 md:h-[350px]' src={currentUser?.coverpic || ""} alt="" />
+            <div className='cover w-full relative'>
+                <img
+                    className='object-cover w-full h-48 md:h-[350px]'
+                    src={currentUser?.coverpic || "/default-cover.jpg"}
+                    alt=""
+                />
 
                 <div className='absolute -bottom-20 right-[33%] md:right-[46%] border-white overflow-hidden border-2 rounded-full size-36'>
-                    <img className='rounded-full object-cover size-36' src={currentUser?.profilepic || ""} alt="" />
+                    <img
+                        className='rounded-full object-cover size-36'
+                        src={currentUser?.profilepic || "/avatar.gif"}
+                        alt=""
+                    />
                 </div>
             </div>
 
@@ -110,38 +125,36 @@ const PaymentPage = ({ username }) => {
                     Lets help {username} get a chai!
                 </div>
 
-                {/* SAFE REDUCE FIX */}
                 <div className='text-slate-400'>
-                    {payments.length} Payments . ₹{payments.reduce((a, b) => a + (b?.amount || 0), 0)} raised
+                    {payments?.length || 0} Payments . ₹{
+                        payments?.reduce((a, b) => a + (b?.amount || 0), 0)
+                    } raised
                 </div>
 
                 <div className="payment flex gap-3 w-[80%] mt-11 flex-col md:flex-row">
 
                     {/* SUPPORTERS */}
-                    <div className="supporters w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
-                        <h2 className='text-2xl font-bold my-5'> Top 10 Supporters</h2>
+                    <div className="w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
+                        <h2 className='text-2xl font-bold my-5'>Top Supporters</h2>
 
                         <ul className='mx-5 text-lg'>
-                            {payments.length === 0 && <li>No payments yet</li>}
+                            {payments?.length === 0 && <li>No payments yet</li>}
 
-                            {/* SAFE MAP FIX */}
-                            {payments.map((p, i) => {
-                                return (
-                                    <li key={i} className='my-4 flex gap-2 items-center'>
-                                        <img width={33} src="avatar.gif" alt="" />
-                                        <span>
-                                            {p?.name || "Someone"} donated
-                                            <span className='font-bold'> ₹{p?.amount || 0}</span>
-                                            with message "{p?.message || ""}"
-                                        </span>
-                                    </li>
-                                )
-                            })}
+                            {payments?.map((p, i) => (
+                                <li key={i} className='my-4 flex gap-2 items-center'>
+                                    <img width={33} src="/avatar.gif" alt="" />
+                                    <span>
+                                        {p?.name || "Someone"} donated
+                                        <span className='font-bold'> ₹{p?.amount || 0}</span>
+                                        with message "{p?.message || ""}"
+                                    </span>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* PAYMENT FORM */}
-                    <div className="makePayment w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
+                    <div className="w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
 
                         <h2 className='text-2xl font-bold my-5'>Make a Payment</h2>
 
@@ -160,9 +173,13 @@ const PaymentPage = ({ username }) => {
                                 placeholder='Enter Amount' />
 
                             <button
-                                onClick={() => pay(Number.parseInt(paymentform.amount || 0) * 100)}
+                                onClick={() => pay(Number(paymentform.amount || 0) * 100)}
                                 className="text-white bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg px-5 py-2.5"
-                                disabled={paymentform.name?.length < 3 || paymentform.message?.length < 4 || paymentform.amount?.length < 1}>
+                                disabled={
+                                    paymentform.name?.length < 3 ||
+                                    paymentform.message?.length < 4 ||
+                                    paymentform.amount?.length < 1
+                                }>
                                 Pay
                             </button>
 

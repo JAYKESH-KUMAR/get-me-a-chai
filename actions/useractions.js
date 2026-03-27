@@ -1,4 +1,3 @@
-
 "use server"
 
 import Razorpay from "razorpay"
@@ -6,100 +5,127 @@ import Payment from "@/models/Payment"
 import connectDb from "@/db/connectDb"
 import User from "@/models/User"
 
+// INITIATE PAYMENT (SAFE)
 export const initiate = async (amount, to_username, paymentform) => {
-    await connectDb()
+    try {
+        await connectDb()
 
-    let user = await User.findOne({ username: to_username.toLowerCase() })
+        if (!to_username) throw new Error("Username missing")
 
-    if (!user) {
-        throw new Error("User not found")   
+        let user = await User.findOne({
+            username: to_username.toLowerCase()
+        }).lean()
+
+        if (!user) {
+            throw new Error("User not found")
+        }
+
+        if (!user.razorpayid || !user.razorpaysecret) {
+            throw new Error("Razorpay details missing")
+        }
+
+        const instance = new Razorpay({
+            key_id: user.razorpayid,
+            key_secret: user.razorpaysecret
+        })
+
+        let options = {
+            amount: Number(amount),
+            currency: "INR",
+        }
+
+        let x = await instance.orders.create(options)
+
+        await Payment.create({
+            oid: x.id,
+            amount: amount / 100,
+            to_user: to_username.toLowerCase(),
+            name: paymentform?.name || "Anonymous",
+            message: paymentform?.message || ""
+        })
+
+        return x
+
+    } catch (err) {
+        console.log("INITIATE ERROR:", err)
+        throw err
     }
-
-    const secret = user.razorpaysecret
-
-    var instance = new Razorpay({ 
-        key_id: user.razorpayid, 
-        key_secret: secret 
-    })
-
-    let options = {
-        amount: Number.parseInt(amount),
-        currency: "INR",
-    }
-
-    let x = await instance.orders.create(options)
-
-    await Payment.create({
-        oid: x.id,
-        amount: amount / 100,
-        to_user: to_username,
-        name: paymentform?.name || "Anonymous",     
-        message: paymentform?.message || ""
-    })
-
-    return x
 }
 
 
+// FETCH USER (NO CRASH)
 export const fetchuser = async (username) => {
-    await connectDb()
+    try {
+        await connectDb()
 
-    if (!username) return null  
+        if (!username) return null
 
-    let u = await User.findOne({ username: username.toLowerCase() })
+        let u = await User.findOne({
+            username: username.toLowerCase()
+        }).lean()
 
-    if (!u) return null          
+        return u || null
 
-    let user = u.toObject({ flattenObjectIds: true })
-    return user
+    } catch (err) {
+        console.log("fetchuser error:", err)
+        return null
+    }
 }
 
 
+// FETCH PAYMENTS (SAFE)
 export const fetchpayments = async (username) => {
-    await connectDb()
+    try {
+        await connectDb()
 
-    if (!username) return []   
+        if (!username) return []
 
-    let p = await Payment.find({
-        to_user: username.toLowerCase(),
-        done: true
-    })
-    .sort({ amount: -1 })
-    .limit(10)
-    .lean()
+        let p = await Payment.find({
+            to_user: username.toLowerCase(),
+            done: true
+        })
+            .sort({ amount: -1 })
+            .limit(10)
+            .lean()
 
-    p = p.map(item => ({
-        ...item,
-        _id: item._id.toString()
-    }))
+        return p.map(item => ({
+            ...item,
+            _id: item._id.toString()
+        })) || []
 
-    return p || []  
+    } catch (err) {
+        console.log("fetchpayments error:", err)
+        return []
+    }
 }
 
 
+//  UPDATE PROFILE (FINAL SAFE)
 export const updateProfile = async (data, oldusername) => {
     try {
         await connectDb()
 
-        let ndata = data
-
-        if (!ndata?.email) {
+        if (!data?.email) {
             return { error: "Email missing" }
         }
 
-        // SAFE UPDATE (ONLY FIELDS YOU NEED)
+        const ndata = data
+
         const updateData = {
-            name: ndata.name,
-            username: ndata.username,
-            profilepic: ndata.profilepic,
-            coverpic: ndata.coverpic,
-            razorpayid: ndata.razorpayid,
-            razorpaysecret: ndata.razorpaysecret,
+            name: ndata.name || "",
+            username: ndata.username?.toLowerCase() || "",
+            profilepic: ndata.profilepic || "",
+            coverpic: ndata.coverpic || "",
+            razorpayid: ndata.razorpayid || "",
+            razorpaysecret: ndata.razorpaysecret || "",
         }
 
-        if (oldusername !== ndata.username) {
+        // Username change case
+        if (oldusername !== updateData.username) {
 
-            let existing = await User.findOne({ username: ndata.username })
+            let existing = await User.findOne({
+                username: updateData.username
+            })
 
             if (existing) {
                 return { error: "Username already exists" }
@@ -107,18 +133,18 @@ export const updateProfile = async (data, oldusername) => {
 
             await User.updateOne(
                 { email: ndata.email },
-                { $set: updateData }   
+                { $set: updateData }
             )
 
             await Payment.updateMany(
                 { to_user: oldusername },
-                { to_user: ndata.username }
+                { to_user: updateData.username }
             )
 
         } else {
             await User.updateOne(
                 { email: ndata.email },
-                { $set: updateData }   
+                { $set: updateData }
             )
         }
 
