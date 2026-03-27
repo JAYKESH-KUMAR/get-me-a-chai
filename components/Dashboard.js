@@ -38,9 +38,11 @@ const Dashboard = () => {
         try {
             if (!session?.user?.email) return;
 
-            let u = await fetchuser(session.user.email)
-            setform({...u,email: session.user.email })
-        } catch (err) {
+            let u = await fetchuser(session.user.name)
+            setform({
+                ...(u || {}) , email: session.user.email })
+        } 
+        catch (err) {
             console.log("Error fetching user:", err)
         }
     }

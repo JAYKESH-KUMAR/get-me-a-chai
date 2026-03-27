@@ -78,25 +78,54 @@ export const fetchpayments = async (username) => {
 
 
 export const updateProfile = async (data, oldusername) => {
-    await connectDb()
+    try {
+        await connectDb()
 
-    let ndata = data 
+        let ndata = data
 
-    if (oldusername !== ndata.username) {
-        let u = await User.findOne({ username: ndata.username })
-
-        if (u) {
-            return { error: "Username already exists" }
+        if (!ndata?.email) {
+            return { error: "Email missing" }
         }
 
-        await User.updateOne({ email: ndata.email }, ndata)
+        // SAFE UPDATE (ONLY FIELDS YOU NEED)
+        const updateData = {
+            name: ndata.name,
+            username: ndata.username,
+            profilepic: ndata.profilepic,
+            coverpic: ndata.coverpic,
+            razorpayid: ndata.razorpayid,
+            razorpaysecret: ndata.razorpaysecret,
+        }
 
-        await Payment.updateMany(
-            { to_user: oldusername },
-            { to_user: ndata.username }
-        )
+        if (oldusername !== ndata.username) {
 
-    } else {
-        await User.updateOne({ email: ndata.email }, ndata)
+            let existing = await User.findOne({ username: ndata.username })
+
+            if (existing) {
+                return { error: "Username already exists" }
+            }
+
+            await User.updateOne(
+                { email: ndata.email },
+                { $set: updateData }   
+            )
+
+            await Payment.updateMany(
+                { to_user: oldusername },
+                { to_user: ndata.username }
+            )
+
+        } else {
+            await User.updateOne(
+                { email: ndata.email },
+                { $set: updateData }   
+            )
+        }
+
+        return { success: true }
+
+    } catch (err) {
+        console.log("updateProfile error:", err)
+        return { error: "Server error" }
     }
 }
