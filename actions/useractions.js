@@ -13,7 +13,7 @@ export const initiate = async (amount, to_username, paymentform) => {
         if (!to_username) throw new Error("Username missing")
 
         let user = await User.findOne({
-            username: to_username.toLowerCase()
+            username: { $regex: `^${to_username}$`, $options:"i" }
         }).lean()
 
         if (!user) {
@@ -61,12 +61,9 @@ export const fetchuser = async (username) => {
         if (!username) return null
 
         let u = await User.findOne({
-            username: username.toLowerCase()
-        }).lean()
-
-        return u || null
-
-    } catch (err) {
+            username: { $regex: `^${username}$`, $options:"i" }}).lean()
+            return u || null
+        }catch (err) {
         console.log("fetchuser error:", err)
         return null
     }
@@ -113,7 +110,7 @@ export const updateProfile = async (data, oldusername) => {
 
         const updateData = {
             name: ndata.name || "",
-            username: ndata.username?.toLowerCase()?.trim() || "",
+            username: ndata.username?.toLowerCase().trim().replace(" ", "") || "",
             profilepic: ndata.profilepic || "",
             coverpic: ndata.coverpic || "",
             razorpayid: ndata.razorpayid || "",

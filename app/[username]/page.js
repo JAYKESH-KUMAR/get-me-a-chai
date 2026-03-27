@@ -14,7 +14,7 @@ export default async function Page(props) {
 
   // case-insensitive + null-safe
   const user = await User.findOne({
-    username: username.toLowerCase(),
+    username: { $regex: `^${username}$`, $options: "i" }
   }).lean();
 
   if (!user) {
