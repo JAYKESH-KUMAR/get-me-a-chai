@@ -56,6 +56,8 @@ const PaymentPage = ({ username }) => {
     }
 
     const pay = async (amount) => {
+         try {
+            if (!currentUser) return;
         let a = await initiate(amount, username, paymentform)
         let orderId = a.id
 
@@ -71,14 +73,16 @@ const PaymentPage = ({ username }) => {
 
         var rzp1 = new Razorpay(options);
         rzp1.open();
-    }
+    }catch (err) {
+            console.log("Payment error:", err)
+        }
 
     // LOADING FIX (CRASH STOP)
     if (!currentUser)
          {
         return (
             <div className="text-white text-center mt-10">
-                User not found or loading...
+              User not found or loading...
             </div>
         )
     }
