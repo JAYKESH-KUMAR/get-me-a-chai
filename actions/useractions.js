@@ -80,7 +80,7 @@ export const fetchpayments = async (username) => {
 export const updateProfile = async (data, oldusername) => {
     await connectDb()
 
-    let ndata = Object.fromEntries(data)
+    let ndata = data 
 
     if (oldusername !== ndata.username) {
         let u = await User.findOne({ username: ndata.username })
