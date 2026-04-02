@@ -6,6 +6,7 @@ import { fetchuser, updateProfile } from '@/actions/useractions'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
+import { Session } from 'inspector/promises'
 
 const Dashboard = () => {
     const { data: session, update } = useSession()
@@ -21,7 +22,7 @@ const Dashboard = () => {
         else {
             getData()
         }
-    }, [])
+    }, [Session])
 
     const getData = async () => {
         let u = await fetchuser(session.user.name)

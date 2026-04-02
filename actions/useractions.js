@@ -79,7 +79,7 @@ export const fetchpayments = async (username) => {
 
         let p = await Payment.find({
             to_user: username.toLowerCase(),
-            done: true
+            done: true 
         })
             .sort({ amount: -1 })
             .limit(10)

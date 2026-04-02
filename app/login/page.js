@@ -13,7 +13,7 @@ const Login = () => {
     if (session) {
       router.push('/dashboard')
     }
-  }, [])
+  }, [session])
 
   return (
     <div className='text-white py-14 container mx-auto'>
