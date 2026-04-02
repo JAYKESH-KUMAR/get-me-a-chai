@@ -6,7 +6,7 @@ import { fetchuser, updateProfile } from '@/actions/useractions'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
-import { Session } from 'inspector/promises'
+
 
 const Dashboard = () => {
     const { data: session, update } = useSession()
@@ -14,18 +14,20 @@ const Dashboard = () => {
     const [form, setform] = useState({})
 
     useEffect(() => {
-        console.log(session)
+        if(session === undefined) return;
+        
 
         if (!session) {
             router.push('/login')
         }
-        else {
+        else if (session?.user?.name) {
             getData()
         }
-    }, [Session])
+    }, [session])
 
     const getData = async () => {
-        let u = await fetchuser(session.user.name)
+        if (!session?.user?.name) return;
+        let u = await fetchuser(session.user.name.trim().toLowerCase())
         setform(u)
     }
 

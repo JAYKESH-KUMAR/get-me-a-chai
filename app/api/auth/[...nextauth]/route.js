@@ -63,7 +63,7 @@ const handler = NextAuth({
         });
 
         if (dbUser && dbUser.username) {
-          session.user.name = dbUser.username;
+          session.user.name = dbUser.username.trim().toLowerCase();
         } else{
           session.user.name = session.user.name || "User"
         }
