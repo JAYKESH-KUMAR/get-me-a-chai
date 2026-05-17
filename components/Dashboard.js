@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation'
 import { fetchuser, updateProfile } from '@/actions/useractions'
 import { ToastContainer, toast } from 'react-toastify';
@@ -9,37 +9,84 @@ import { Bounce } from 'react-toastify';
 
 
 const Dashboard = () => {
-    const { data: session, update } = useSession()
+    const { data: session, status } = useSession()
     const router = useRouter()
-    const [form, setform] = useState({})
+    const [form, setform] = useState({name: "",
+        email: "",
+        username: "",
+        profilepic: "",
+        coverpic: "",
+        razorpayid: "",
+        razorpaysecret: ""})
 
     useEffect(() => {
-        if(session === undefined) return;
-        
+        if (status === "loading") return
+
 
         if (!session) {
             router.push('/login')
+            return
         }
-        else if (session?.user?.name) {
+         if (session?.user?.name) {
             getData()
         }
-    }, [session])
+    }, [session,status])
 
     const getData = async () => {
-        if (!session?.user?.name) return;
+        try{
+
+        if (!session?.user?.name) return
         let u = await fetchuser(session.user.name.trim().toLowerCase())
-        setform(u)
+
+        if (u) {
+            setform({
+                name: u.name || "",
+                email: u.email || "",
+                username: u.username || "",
+                profilepic: u.profilepic || "",
+                coverpic: u.coverpic || "",
+                razorpayid: u.razorpayid || "",
+                razorpaysecret: u.razorpaysecret || ""
+            })
+        } else {
+            setform({
+                name: "",
+                email: "",
+                username: "",
+                profilepic: "",
+                coverpic: "",
+                razorpayid: "",
+                razorpaysecret: ""
+            })
+        }
+    } catch (error) {
+        console.log("Dashboard fetch error:", error)
     }
+}
 
     const handleChange = (e) => {
-        setform({ ...form, [e.target.name]: e.target.value })
+        setform({ ...form, [e.target.name]: e.target.value
+
+         })
     }
 
     const handleSubmit = async (e) => {
-            e.preventDefault(); 
+        e.preventDefault()
+        try {
+        let result = await updateProfile(form, session?.user?.name || "")
 
-        let a = await updateProfile(form, session?.user?.name || "")
-        toast('Profile Updated', {
+        if (result?.error) {
+            toast.error(result.error, {
+                position: "top-right",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            })
+            return
+        }
+
+    
+        toast.success('Profile Updated', {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -49,8 +96,18 @@ const Dashboard = () => {
             progress: undefined,
             theme: "light",
             transition: Bounce,
-            });
+        })
+    }  catch (error) {
+        console.log("Submit error:", error)
+
+        toast.error("Something went wrong", {
+            position: "top-right",
+            autoClose: 5000,
+            theme: "light",
+            transition: Bounce,
+        })
     }
+}
 
 
 
@@ -71,46 +128,46 @@ const Dashboard = () => {
                 theme="light"
             />
             {/* Same as */}
-            <ToastContainer />
+            
             <div className='container mx-auto py-5 px-6 '>
                 <h1 className='text-center my-5 text-3xl font-bold'>Welcome to your Dashboard</h1>
 
                 <form onSubmit={handleSubmit}>
 
                     <div className='my-2'>
-                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                        <input value={form.name ? form.name : ""} onChange={handleChange} type="text" name='name' id="name" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-white dark:text-white">Name</label>
+                        <input value={form.name ? form.name : ""} onChange={handleChange} type="text" name='name' id="name" className="block w-full p-2 text-white border border-gray-300 rounded-lg bg-gray-700 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
                     {/* input for email */}
                     <div className="my-2">
-                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                        <input value={form.email ? form.email : ""} onChange={handleChange} type="email" name='email' id="email" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-white dark:text-white">Email</label>
+                        <input value={form.email ? form.email : ""} onChange={handleChange} type="email" name='email' id="email" className="block w-full p-2 text-white border border-gray-300 rounded-lg bg-gray-700 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
                     {/* input forusername */}
                     <div className='my-2'>
-                        <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                        <input value={form.username ? form.username : ""} onChange={handleChange} type="text" name='username' id="username" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <label htmlFor="username" className="block mb-2 text-sm font-medium text-white dark:text-white">Username</label>
+                        <input value={form.username ? form.username : ""} onChange={handleChange} type="text" name='username' id="username" className="block w-full p-2 text-white border border-gray-300 rounded-lg bg-gray-700 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
                     {/* input for profile picture of input type text */}
                     <div className="my-2">
-                        <label htmlFor="profilepic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Profile Picture</label>
-                        <input value={form.profilepic ? form.profilepic : ""} onChange={handleChange} type="text" name='profilepic' id="profilepic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <label htmlFor="profilepic" className="block mb-2 text-sm font-medium text-white dark:text-white">Profile Picture</label>
+                        <input value={form.profilepic ? form.profilepic : ""} onChange={handleChange} type="text" name='profilepic' id="profilepic" className="block w-full p-2 text-white border border-gray-300 rounded-lg bg-gray-700 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
 
                     {/* input for cover pic  */}
                     <div className="my-2">
-                        <label htmlFor="coverpic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cover Picture</label>
-                        <input value={form.coverpic ? form.coverpic : ""} onChange={handleChange} type="text" name='coverpic' id="coverpic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <label htmlFor="coverpic" className="block mb-2 text-sm font-medium text-white dark:text-white">Cover Picture</label>
+                        <input value={form.coverpic ? form.coverpic : ""} onChange={handleChange} type="text" name='coverpic' id="coverpic" className="block w-full p-2 text-white border border-gray-300 rounded-lg bg-gray-700 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
                     {/* input razorpay id */}
                     <div className="my-2">
-                        <label htmlFor="razorpayid" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Id</label>
-                        <input value={form.razorpayid ? form.razorpayid : ""} onChange={handleChange} type="text" name='razorpayid' id="razorpayid" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <label htmlFor="razorpayid" className="block mb-2 text-sm font-medium text-white dark:text-white">Razorpay Id</label>
+                        <input value={form.razorpayid ? form.razorpayid : ""} onChange={handleChange} type="text" name='razorpayid' id="razorpayid" className="block w-full p-2 text-white border border-gray-300 rounded-lg bg-gray-700 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
                     {/* input razorpay secret */}
                     <div className="my-2">
-                        <label htmlFor="razorpaysecret" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Secret</label>
-                        <input value={form.razorpaysecret ? form.razorpaysecret : ""} onChange={handleChange} type="text" name='razorpaysecret' id="razorpaysecret" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <label htmlFor="razorpaysecret" className="block mb-2 text-sm font-medium text-white dark:text-white">Razorpay Secret</label>
+                        <input value={form.razorpaysecret ? form.razorpaysecret : ""} onChange={handleChange} type="text" name='razorpaysecret' id="razorpaysecret" className="block w-full p-2 text-white border border-gray-300 rounded-lg bg-gray-700 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
 
                     {/* Submit Button  */}
