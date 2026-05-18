@@ -1,103 +1,135 @@
-# ☕ Get Me A Chai — Support Creators Platform
+# ☕ Get Me A Chai
 
- **Get Me A Chai** is a full-stack web application that allows users to support their favorite creators by making seamless online payments — inspired by platforms like *Buy Me a Coffee*.
+A full-stack web application where creators can receive support from their audience through secure online payments.
 
----
+The idea is inspired by platforms like **Buy Me a Coffee**, where supporters can financially contribute to creators they like. I built this project to get hands-on experience with real-world full-stack development, authentication, payment integration, database handling, and deployment.
 
-## 🌐 Live Demo
+## Live Project
 
-🔗 https://get-me-a-chai-production.up.railway.app  
+🔗 https://get-me-a-chai-one-jade.vercel.app
 
----
+## Demo Video
 
-## 🎥 Demo Video
-
-▶️ https://youtu.be/bWft78-M7Yg  
+🎥 https://youtu.be/bWft78-M7Yg
 
 ---
 
-## 🧠 Project Overview
+## Project Overview
 
-This project demonstrates a complete real-world implementation of a creator-support platform with authentication, payments, and dynamic user dashboards.
+Get Me A Chai allows creators to create their own public support page where followers can contribute money and leave messages.
 
-It is built to showcase **full-stack development skills**, including API integration, authentication, database handling, and modern UI design.
+After logging in, creators can manage their profile, add payment details, and personalize their support page.
 
----
+Supporters can visit any creator’s page and make secure payments through Razorpay.
 
-## ✨ Key Features
-
-- 🔐 **Secure Authentication** using NextAuth (GitHub OAuth)
-- 👤 **User Dashboard** for managing profile and payment details
-- 💳 **Razorpay Integration** for real-time payments
-- 🧾 **Supporters Feed** showing contributions and messages
-- 🎨 **Modern UI/UX** with Tailwind CSS
-- ⚡ **Optimized Performance** using Next.js App Router
+This project gave me practical experience in building and deploying a complete full-stack application instead of just working on isolated frontend components.
 
 ---
 
-## 🛠 Tech Stack
+## Features
 
-| Category        | Technology Used |
-|----------------|----------------|
-| Frontend       | Next.js, Tailwind CSS |
-| Backend        | Next.js API Routes |
-| Authentication | NextAuth.js |
-| Database       | MongoDB |
-| Payments       | Razorpay |
-| Deployment     | Railway |
+- Secure login using GitHub OAuth
+- Authentication and session management with NextAuth.js
+- Personalized creator dashboard
+- Dynamic public creator pages
+- Razorpay payment integration
+- Payment verification after successful transactions
+- Supporter contribution feed with messages
+- MongoDB database integration
+- Responsive user interface
+- Full deployment on Vercel
 
 ---
 
-## 📸 Screenshots
+## Tech Stack
 
-### 🏠 Home Page
+**Frontend**
+- Next.js
+- React.js
+- Tailwind CSS
+
+**Backend**
+- Next.js API Routes
+- Server Actions
+
+**Authentication**
+- NextAuth.js
+- GitHub OAuth
+
+**Database**
+- MongoDB
+- Mongoose
+
+**Payments**
+- Razorpay
+
+**Deployment**
+- Vercel
+
+---
+
+## Screenshots
+
+### Home Page
 ![Home](./Screenshots/Home.png)
 
-### 📊 Dashboard
+### Dashboard
 ![Dashboard](./Screenshots/Dashboard.png)
 
-### 💳 Payment Page
+### Creator Payment Page
 ![Payment](./Screenshots/Payment.png)
 
-## ⚙️ Local Setup Instructions
+---
 
-```bash
-git clone https://github.com/JAYKESH-KUMAR/get-me-a-chai.git
-cd get-me-a-chai
-npm install
-npm run 
+## What I Learned
 
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=922e40e812785c5c641538f39e676edf25dd4cfdeeefae7970acab5fe228a029
-MONGO_URI=mongodb://mongo:TglunlsKygNazmfqeEhjmPUHZQYHWxfb@centerbeam.proxy.rlwy.net:11753       
-GITHUB_SECRET=04fd8d29a5c1d337e034b06963456187f7f07a91
-GITHUB_ID=Ov23li4t1STOK2ScgMDS
-RAZORPAY_KEY_ID=rzp_test_STsC45dknrUoiO
-RAZORPAY_KEY_SECRET=61hT9SH5XnBVf0KhJ5gE14DY
-NEXT_PUBLIC_URL=http://localhost:3000
+Building this project helped me understand:
 
-📈 What I Learned
-Building secure authentication flows using OAuth
-Integrating third-party payment gateways (Razorpay)
-Managing server-side rendering with Next.js
-Handling real-time data with MongoDB
-Deploying production-ready apps on Railway
-🚀 Future Improvements
-🔔 Email notifications after payment
-📊 Analytics dashboard for creators
-🌍 Multi-user discovery page
-📱 Mobile responsiveness improvements
-🙌 Author
+- How OAuth authentication works in real applications
+- Managing sessions and protected routes
+- Working with MongoDB schemas and database operations
+- Building dynamic routes in Next.js
+- Integrating third-party payment gateways
+- Handling secure payment verification
+- Managing environment variables in production
+- Deploying full-stack applications
+- Debugging production issues and configuration problems
 
-Jaykesh Kumar
-🔗 https://github.com/JAYKESH-KUMAR
+---
 
-⭐ Support
+## Challenges I Faced
 
-If you found this project useful or interesting:
+Some real issues I encountered while building this:
 
-Give it a ⭐ on GitHub
- Share it with others
+- MongoDB connection failures in production
+- GitHub OAuth redirect mismatch errors
+- Environment variable configuration mistakes
+- Dashboard data loading issues
+- Payment verification debugging
 
-💡 This project is built for learning, portfolio, and demonstrating real-world full-stack development skills.
-<!-- updated -->
+Fixing these problems taught me much more than simply writing code.
+
+---
+
+## Future Improvements
+
+Planned enhancements:
+
+- Email notifications after successful payments
+- Creator analytics dashboard
+- Profile image upload with cloud storage
+- Better mobile optimization
+- Creator discovery page
+- Admin controls and moderation features
+
+---
+
+## Author
+
+**Jaykesh Kumar**
+
+GitHub: https://github.com/JAYKESH-KUMAR
+
+---
+
+This project was built as part of my learning journey in full-stack web development and to showcase practical development skills.
